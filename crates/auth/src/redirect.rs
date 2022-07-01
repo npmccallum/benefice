@@ -11,28 +11,27 @@ pub struct AuthRedirectRoot(pub String);
 impl AuthRedirectRoot {
     pub fn error(&self, error: String) -> AuthRedirect {
         AuthRedirect {
-            root: self.0.clone(),
+            url: self.0.clone(),
             error: Some(error),
         }
     }
 
     pub fn no_error(&self) -> AuthRedirect {
         AuthRedirect {
-            root: self.0.clone(),
+            url: self.0.clone(),
             error: None,
         }
     }
 }
 
 pub struct AuthRedirect {
-    pub root: String,
+    pub url: String,
     pub error: Option<String>,
 }
 
 impl IntoResponse for AuthRedirect {
     fn into_response(self) -> Response {
         // TODO: redirect the user to a general purpose sign in page so they can choose what to login with, show the user the message in the error field: https://github.com/profianinc/drawbridge/issues/50
-        response::Redirect::temporary(&format!("{}{}", self.root, github::LOGIN_URI))
-            .into_response()
+        response::Redirect::temporary(&self.url).into_response()
     }
 }

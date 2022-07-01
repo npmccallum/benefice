@@ -5,7 +5,7 @@ use std::process::Stdio;
 use std::sync::Arc;
 use std::time::Duration;
 
-use benefice_auth::providers::github;
+use benefice_auth::providers::auth0;
 use benefice_auth::{AuthRedirectRoot, Session};
 
 use axum::extract::Path;
@@ -55,22 +55,22 @@ async fn main() {
     let key = RsaPrivateKey::from_pkcs8_der(&std::fs::read("key.der").expect("read key.der file"))
         .expect("parse key.der");
 
-    let host = SocketAddr::new(IpAddr::V4(Ipv4Addr::UNSPECIFIED), 3000);
+    let host = SocketAddr::new(IpAddr::V4(Ipv4Addr::LOCALHOST), 3000);
 
     let app = Router::new()
-        .route(github::AUTHORIZED_URI, get(github::routes::authorized))
-        .route(github::LOGIN_URI, get(github::routes::login))
-        .route(github::LOGOUT_URI, get(github::routes::logout))
+        .route(auth0::AUTHORIZED_URI, get(auth0::routes::authorized))
+        .route(auth0::LOGIN_URI, get(auth0::routes::login))
+        .route(auth0::LOGOUT_URI, get(auth0::routes::logout))
         .route("/:uuid/", get(uuid_get))
         .route("/:uuid/out", post(uuid_out_post))
         .route("/:uuid/err", post(uuid_err_post))
         .route("/", get(root_get).post(root_post))
         .layer(Extension(key))
         .layer(Extension(AuthRedirectRoot(host.to_string())))
-        .layer(Extension(github::OAuthClient::new(
+        .layer(Extension(auth0::OAuthClient::new(
             &host.to_string(),
-            std::env::var("CLIENT_ID").expect("github oauth CLIENT_ID"),
-            std::env::var("CLIENT_SECRET").expect("github oauth CLIENT_SECRET"),
+            &std::env::var("AUTH0_HOSTNAME").expect("AUTH0_HOSTNAME env var"),
+            std::env::var("CLIENT_ID").expect("CLIENT_ID env var"),
         )))
         .layer(TraceLayer::new_for_http());
 

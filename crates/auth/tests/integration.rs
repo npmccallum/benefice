@@ -29,7 +29,7 @@ pub fn test_app(host: String) -> Router {
         .route(STATUS, get(status::status))
         .route(PROTECTED, get(protected::protected))
         .layer(Extension(key))
-        .layer(Extension(AuthRedirectRoot(host.clone())))
+        .layer(Extension(AuthRedirectRoot(format!("{}{}", host, github::LOGIN_URI))))
         .layer(Extension(github::OAuthClient::new(
             &host,
             std::env::var("CLIENT_ID").expect("github oauth CLIENT_ID"),

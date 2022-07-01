@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2022 Profian Inc. <opensource@profian.com>
 // SPDX-License-Identifier: AGPL-3.0-only
 
-use super::providers::{github, Provider};
+use super::providers::{auth0, github, Provider};
 use super::redirect::{AuthRedirect, AuthRedirectRoot};
 
 use std::fmt;
@@ -152,6 +152,10 @@ where
 
         match session.provider {
             Provider::GitHub => github::validate(&session)
+                .await
+                .map(|github| session.set_user_info(github.username, github.id.to_string()))
+                .map_err(|_| redirect.no_error()),
+            Provider::Auth0 => auth0::validate(&session)
                 .await
                 .map(|github| session.set_user_info(github.username, github.id.to_string()))
                 .map_err(|_| redirect.no_error()),

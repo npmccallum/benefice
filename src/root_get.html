@@ -2,7 +2,7 @@
 <html>
 
 <body>
-    <a id="auth" href="/auth/github">Login</a><span id="message"></span>
+    <a id="auth" href="/auth/auth0">Login</a><span id="message"></span>
     <form enctype="multipart/form-data" method="post">
         <textarea name="toml" rows="16" style="width: 80%" autofocus>
 [[files]]
@@ -25,7 +25,7 @@ kind = "stderr"
         if (authenticated) {
             var authLink = window.document.getElementById("auth");
 
-            authLink.setAttribute("href", "/auth/github/logout");
+            authLink.setAttribute("href", "/auth/auth0/logout");
             authLink.textContent = "Logout";
         } else {
             var uploadFile = window.document.getElementById("upload_file");
